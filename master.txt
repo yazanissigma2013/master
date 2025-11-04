@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UnblockedHub Games</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .topbar {
+      display: flex;
+      justify-content: center;
+      background: #111;
+      padding: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar a {
+      color: #ccc;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 14px;
+    }
+    .topbar a.active {
+      color: #fff;
+      font-weight: bold;
+    }
+    .container {
+      padding: 16px;
+    }
+    .games-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      gap: 16px;
+    }
+    .game-item {
+      background: #111;
+      border: 1px solid #222;
+      padding: 8px;
+      text-align: center;
+    }
+    .game-item a {
+      color: #0af;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .game-iframe {
+      width: 100%;
+      height: 300px;
+      border: none;
+      background: #000;
+    }
+    .proxy-form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+    }
+    .proxy-form input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #333;
+      background: #111;
+      color: #fff;
+    }
+    .proxy-form button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      background: #0af;
+      color: #000;
+      cursor: pointer;
+    }
+    .proxy-frame {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="#games" id="link-games" class="active">Games</a>
+    <a href="#proxy" id="link-proxy">Proxy</a>
+  </div>
+
+  <div class="container" id="view-games">
+    <h1>UnblockedHub Games</h1>
+    <p>Select a game below to load it:</p>
+    <div class="games-list" id="games-list">
+      <!-- Game items will be injected by script -->
+    </div>
+  </div>
+
+  <div class="container" id="view-proxy" style="display:none;">
+    <h1>UnblockedHub Proxy</h1>
+    <p>Use the form below to search DuckDuckGo in a new unblocked tab:</p>
+    <form class="proxy-form" onsubmit="searchProxy(event)">
+      <input type="text" id="proxy-query" placeholder="Search DuckDuckGo…" required/>
+      <button type="submit">Search</button>
+    </form>
+    <iframe id="proxy-frame" class="proxy-frame"></iframe>
+  </div>
+
+  <script>
+    // 1) Navigation between views
+    const linkGames = document.getElementById('link-games');
+    const linkProxy = document.getElementById('link-proxy');
+    const viewGames = document.getElementById('view-games');
+    const viewProxy = document.getElementById('view-proxy');
+
+    function showGames() {
+      linkGames.classList.add('active');
+      linkProxy.classList.remove('active');
+      viewGames.style.display = '';
+      viewProxy.style.display = 'none';
+    }
+    function showProxy() {
+      linkProxy.classList.add('active');
+      linkGames.classList.remove('active');
+      viewProxy.style.display = '';
+      viewGames.style.display = 'none';
+    }
+
+    linkGames.addEventListener('click', e => { e.preventDefault(); showGames(); });
+    linkProxy.addEventListener('click', e => { e.preventDefault(); showProxy(); });
+
+    // 2) Populate 80 game entries
+    const games = [];
+    for (let i = 1; i <= 80; i++) {
+      games.push({
+        name: `Unblocked Game ${i}`,
+        // Replace the URL below with a real unblocked game URL or proxy URL as needed
+        url: `https://example.com/unblocked-game-${i}`
+      });
+    }
+    const list = document.getElementById('games-list');
+    games.forEach(g => {
+      const div = document.createElement('div');
+      div.className = 'game-item';
+      div.innerHTML = `
+        <a href="#" onclick="loadGame('${g.url}');return false;">${g.name}</a>
+        <iframe class="game-iframe" src="${g.url}" allowfullscreen></iframe>
+      `;
+      list.appendChild(div);
+    });
+
+    function loadGame(url) {
+      // find the first iframe and load the selected game
+      const iframe = document.querySelector('.game-iframe');
+      iframe.src = url;
+    }
+
+    // 3) Proxy search function
+    function searchProxy(e) {
+      e.preventDefault();
+      const q = encodeURIComponent(document.getElementById('proxy-query').value);
+      // DuckDuckGo search URL
+      const url = `https://duckduckgo.com/?q=${q}`;
+      // Open in new tab so it's unblocked
+      window.open(url, '_blank');
+      // Optionally also load in the embedded iframe
+      document.getElementById('proxy-frame').src = url;
+    }
+
+    // On load, check hash
+    if (location.hash === '#proxy') showProxy();
+  </script>
+
+</body>
+</html>
